@@ -61,9 +61,9 @@ class SignUpVC: UIViewController, UIImagePickerControllerDelegate, UINavigationC
         picker.dismiss(animated: true, completion: nil)
     }
     
-    let firmRegistrationTextField: UITextField = {
+    let registrationIdTextField: UITextField = {
         let tf = UITextField()
-        tf.placeholder = "Enter your firm's registration ID"
+        tf.placeholder = "Orginisation's registration ID"
         tf.font = UIFont.systemFont(ofSize: 14)
         tf.borderStyle = .roundedRect
         tf.tintColor = UIColor.mainGreen()
@@ -119,7 +119,7 @@ class SignUpVC: UIViewController, UIImagePickerControllerDelegate, UINavigationC
     }()
     
     @objc fileprivate func handleTextInputChanges() {
-        let isFormValid = fullNameTextField.text?.count ?? 0 > 0 && emailTextField.text?.count ?? 0 > 0 && passwordOneTextField.text?.count ?? 0 > 5 && passwordTwoTextField.text?.count ?? 0 > 5
+        let isFormValid = registrationIdTextField.text?.count ?? 0 > 0 && fullNameTextField.text?.count ?? 0 > 0 && emailTextField.text?.count ?? 0 > 0 && passwordOneTextField.text?.count ?? 0 > 5 && passwordTwoTextField.text?.count ?? 0 > 5
         
         if isFormValid {
             signupButton.backgroundColor = UIColor.mainGreen().withAlphaComponent(1)
@@ -176,6 +176,7 @@ class SignUpVC: UIViewController, UIImagePickerControllerDelegate, UINavigationC
     fileprivate func verifyPassword() {
         
         // Verify that input fields are filled out ?
+        guard let registrationId = registrationIdTextField.text, registrationId.count > 0 else { enableAndActivate(false); return }
         guard let email = emailTextField.text, email.count > 0 else { enableAndActivate(false); return }
         guard let fullName = fullNameTextField.text, fullName.count > 0 else { enableAndActivate(false); return }
         guard let passwordOne = passwordOneTextField.text, passwordOne.count > 0 else { enableAndActivate(false); return }
@@ -187,10 +188,84 @@ class SignUpVC: UIViewController, UIImagePickerControllerDelegate, UINavigationC
             return
         }
         
-        handleSignup(email: email, password: passwordOne, fullName: fullName)
+        verifyRegistrationId(registrationId: registrationId, email: email, password: passwordOne, fullName: fullName)
     }
     
-    @objc func handleSignup(email: String, password: String, fullName: String) {
+    // Make sure that the registrationId used is valid
+    func verifyRegistrationId(registrationId: String, email: String, password: String, fullName: String) {
+        
+        guard let isDoctor = self.isDoctor else {
+            print("This VC (SignupVC should not be on screen)"); navigationController?.popViewController(animated: true); return
+        }
+        
+        let databaseRef = Database.database().reference()
+        
+        if isDoctor {
+            
+            let doctorDatabaseRef = databaseRef.child(Constants.FirebaseDatabase.doctorRegistrationIdRef)
+            doctorDatabaseRef.child(registrationId).observeSingleEvent(of: .value, with: { (dataSnapshot) in
+                
+                guard let value = dataSnapshot.value as? [String : Any] else {
+                    DispatchQueue.main.async {
+                        self.enableAndActivate(false)
+                        let errorAlert = self.alert(title: "Invalid Registration Id", message: "Please enter a valid regisrationID or contact MIOS to create one.")
+                        self.present(errorAlert, animated: true, completion: nil)
+                    }
+                    return
+                }
+                
+                if self.validateDoctorCount(for: value) {
+                    
+                    self.handleSignup(registrationId: registrationId, email: email, password: password, fullName: fullName)
+                    
+                } else {
+                    DispatchQueue.main.async {
+                        self.enableAndActivate(false)
+                        let errorAlert = self.alert(title: "Invalid Registration Id", message: "This registration id cannot signup anymore doctors.")
+                        self.present(errorAlert, animated: true, completion: nil)
+                    }
+                    return
+                }
+             }, withCancel: { (error) in
+                DispatchQueue.main.async {
+                    self.enableAndActivate(false)
+                    let errorAlert = self.alert(title: "Invalid Registration Id", message: "Please enter a valid regisrationID or contact MIOS to create one.")
+                    self.present(errorAlert, animated: true, completion: nil)
+                }
+                
+                print("NO Match found for doctorRegistrationId: ", error)
+                return
+            })
+        } else {
+            
+            let patientDatabaseRef = databaseRef.child(Constants.FirebaseDatabase.patientRegistrationIdRef)
+            patientDatabaseRef.child(registrationId).observeSingleEvent(of: .value, with: { (dataSnapshot) in
+                
+                guard let _ = dataSnapshot.value as? [String : Any] else {
+                    DispatchQueue.main.async {
+                        self.enableAndActivate(false)
+                        let errorAlert = self.alert(title: "Invalid Registration Id", message: "Please enter a valid regisrationID or contact MIOS to create one.")
+                        self.present(errorAlert, animated: true, completion: nil)
+                    }
+                    return
+                }
+
+                self.handleSignup(registrationId: registrationId, email: email, password: password, fullName: fullName)
+
+            }, withCancel: { (error) in
+                DispatchQueue.main.async {
+                    self.enableAndActivate(false)
+                    let errorAlert = self.alert(title: "Invalid Registration Id", message: "Try again or go to a local medical authority to recieve a valid registration id.")
+                    self.present(errorAlert, animated: true, completion: nil)
+                }
+
+                print("NO Match found for patientRegistrationId: ", error)
+                return
+            })
+        }
+    }
+    
+    func handleSignup(registrationId: String, email: String, password: String, fullName: String) {
         
         if !verifyInputFields() {
             enableAndActivate(false)
@@ -213,8 +288,6 @@ class SignUpVC: UIViewController, UIImagePickerControllerDelegate, UINavigationC
                 }
                 return
             }
-            
-            print("Successfully created user: ", user.uid)
             
             guard let image = self.plusPhotoButton.imageView?.image, let imageData = UIImageJPEGRepresentation(image, 0.3) else {
                 DispatchQueue.main.async {
@@ -267,23 +340,55 @@ class SignUpVC: UIViewController, UIImagePickerControllerDelegate, UINavigationC
                         return
                     }
                     
-                    DispatchQueue.main.async {
-                        self.enableAndActivate(false)
-                        
-                        if doctor {
-                            
-                            print("No VC yet for doctor signup")
-                            
+                    if let isDoctor = self.isDoctor {
+                        if isDoctor {
+                            self.updateDoctorCount(forRegistrationId: registrationId)
                         } else {
-                            
                             let sexAndBirthdateVC = SexAndBirthdateVC()
                             self.navigationController?.pushViewController(sexAndBirthdateVC, animated: true)
                         }
+                    } else {
+                        return
                     }
                 })
             })
         }
     }
+    
+    fileprivate func validateDoctorCount(for value: [String : Any]) -> Bool {
+        
+        guard let signedUp = value[Constants.FirebaseDatabase.signedUpDoctors] as? [String : Any] else {
+            return true
+        }
+        guard let limit = value[Constants.FirebaseDatabase.doctorRegistrationLimit] as? Int else {
+            return false
+        }
+        
+        if signedUp.count < limit {
+            return true
+        } else {
+            return false
+        }
+    }
+    
+    fileprivate func updateDoctorCount(forRegistrationId registrationID: String) {
+        
+        guard let userId = Auth.auth().currentUser?.uid else { return }
+        
+        let values = [userId : 1]
+        
+        let databaseRef = Database.database().reference().child(Constants.FirebaseDatabase.doctorRegistrationIdRef).child(registrationID).child(Constants.FirebaseDatabase.signedUpDoctors)
+        databaseRef.updateChildValues(values) { (err, _) in
+            if let error = err {
+                fatalError("Failed to update signup doctors: \(error)")
+            }
+        }
+        
+        DispatchQueue.main.async {
+            self.enableAndActivate(false)
+            print("No VC yet for doctor signup")
+        }
+     }
     
     fileprivate func enableAndActivate(_ bool: Bool) {
         
@@ -294,6 +399,7 @@ class SignUpVC: UIViewController, UIImagePickerControllerDelegate, UINavigationC
         }
         
         plusPhotoButton.isEnabled = !bool
+        registrationIdTextField.isEnabled = !bool
         fullNameTextField.isEnabled = !bool
         emailTextField.isEnabled = !bool
         passwordOneTextField.isEnabled = !bool
@@ -324,32 +430,17 @@ class SignUpVC: UIViewController, UIImagePickerControllerDelegate, UINavigationC
     
     fileprivate func setupInputFields() {
         
-        guard let isDoctor = self.isDoctor else { print("This VC (SignupVC should not be on screen)"); navigationController?.popViewController(animated: true); return }
+        guard let _ = self.isDoctor else { print("This VC (SignupVC should not be on screen)"); navigationController?.popViewController(animated: true); return }
         
-        if isDoctor {
-            
-            let stackView = UIStackView(arrangedSubviews: [firmRegistrationTextField, fullNameTextField, emailTextField, passwordOneTextField, passwordTwoTextField, signupButton])
-            stackView.axis = .vertical
-            stackView.distribution = .fillEqually
-            stackView.spacing = 10
-            
-            view.addSubview(stackView)
-            stackView.anchor(top: plusPhotoButton.bottomAnchor, left: view.leftAnchor, bottom: nil, right: view.rightAnchor, paddingTop: 20, paddingLeft: 40, paddingBottom: 0, paddingRight: -40, width: nil, height: 250)
-            
-            firmRegistrationTextField.delegate = self
-            
-        } else {
-            
-            let stackView = UIStackView(arrangedSubviews: [fullNameTextField, emailTextField, passwordOneTextField, passwordTwoTextField, signupButton])
-            stackView.axis = .vertical
-            stackView.distribution = .fillEqually
-            stackView.spacing = 10
-            
-            view.addSubview(stackView)
-            stackView.anchor(top: plusPhotoButton.bottomAnchor, left: view.leftAnchor, bottom: nil, right: view.rightAnchor, paddingTop: 20, paddingLeft: 40, paddingBottom: 0, paddingRight: -40, width: nil, height: 250)
-            
-        }
+        let stackView = UIStackView(arrangedSubviews: [registrationIdTextField, fullNameTextField, emailTextField, passwordOneTextField, passwordTwoTextField, signupButton])
+        stackView.axis = .vertical
+        stackView.distribution = .fillEqually
+        stackView.spacing = 10
         
+        view.addSubview(stackView)
+        stackView.anchor(top: plusPhotoButton.bottomAnchor, left: view.leftAnchor, bottom: nil, right: view.rightAnchor, paddingTop: 20, paddingLeft: 40, paddingBottom: 0, paddingRight: -40, width: nil, height: 250)
+        
+        registrationIdTextField.delegate = self
         fullNameTextField.delegate = self
         emailTextField.delegate = self
         passwordOneTextField.delegate = self
@@ -358,6 +449,7 @@ class SignUpVC: UIViewController, UIImagePickerControllerDelegate, UINavigationC
     
     fileprivate func verifyInputFields() -> Bool {
         // Verify that input fields are filled out ?
+        guard let registrationId = registrationIdTextField.text, registrationId.count > 0 else { return false }
         guard let email = emailTextField.text, email.count > 0 else { return false }
         guard let fullName = fullNameTextField.text, fullName.count > 0 else { return false }
         guard let passwordOne = passwordOneTextField.text, passwordOne.count > 0 else { return false }

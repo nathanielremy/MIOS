@@ -36,8 +36,6 @@ class ProfileSelectionVC: UIViewController {
     
     @objc fileprivate func handleDoctorButton() {
         
-        print("Handling Doctor button")
-        
         let signupVC = SignUpVC()
         signupVC.isDoctor = true
         navigationController?.pushViewController(signupVC, animated: true)
