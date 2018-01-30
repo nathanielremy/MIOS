@@ -21,7 +21,9 @@ class Constants {
         static let orginisationRef = "orginisation"
         static let doctorRegistrationLimit = "doctorRegistrationLimit"
         static let signedUpDoctors = "signedUpDoctors"
+        static let allRegistrationIds = "allRegistrationIds"
         
+        static let userId = "userId"
         static let fullName = "fullName"
         static let email = "email"
         static let birthdate = "birthdate"

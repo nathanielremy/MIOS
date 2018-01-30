@@ -86,11 +86,11 @@ class MIOSIdVC: UIViewController {
             }
             
             self.enableAndActivate(false)
-            
+
             // Delete and refresh info in mainTabBar controllers
             guard let mainTabBarController = UIApplication.shared.keyWindow?.rootViewController as? MainTabBarController else { fatalError() }
             mainTabBarController.setupViewControllers()
-            
+
             self.dismiss(animated: true, completion: nil)
         }
     }
@@ -105,25 +105,47 @@ class MIOSIdVC: UIViewController {
         let databaseRef = Database.database().reference().child(Constants.FirebaseDatabase.usersRef).child(currentUserId)
         databaseRef.observeSingleEvent(of: .value, with: { (dataSnapshot) in
             
-            guard let userDictionary = dataSnapshot.value as? [String : Any], let isDoctor = userDictionary[Constants.FirebaseDatabase.isDoctor] as? Int else {
+            guard let userDictionary = dataSnapshot.value as? [String : Any], let isDoctor = userDictionary[Constants.FirebaseDatabase.isDoctor] as? Int, let fullName = userDictionary[Constants.FirebaseDatabase.fullName] as? String else {
                 print("MIOSIDVC/fetchMIOSId()/: Could not cast dataSnapshot.value to [String:Any]")
                 return
             }
             
+            var miosIdText: String
+            
             if isDoctor == 1 {
-                DispatchQueue.main.async {
-                    self.miosIdLabel.text = "D" + currentUserId.prefix(10)
-                }
+                miosIdText = "D" + currentUserId.prefix(10)
             } else {
-                DispatchQueue.main.async {
-                    self.miosIdLabel.text = "P" + currentUserId.prefix(10)
-                }
+                miosIdText = "P" + currentUserId.prefix(10)
             }
             
-            self.enableAndActivate(false)
+            DispatchQueue.main.async {
+                self.miosIdLabel.text = miosIdText
+            }
+            
+            guard let userId = Auth.auth().currentUser?.uid else {
+                print("Noooo userID...."); return
+            }
+            
+            self.addRegistrationId(registrationId: miosIdText, fullName: fullName, userId: userId)
             
         }) { (error) in
             print("Error: ", error)
+        }
+    }
+    
+    // Add MIOSID to database
+    fileprivate func addRegistrationId(registrationId: String, fullName: String, userId: String) {
+        
+        let values = [registrationId : [Constants.FirebaseDatabase.userId : userId, Constants.FirebaseDatabase.fullName : fullName]]
+        
+        let databaseRef = Database.database().reference().child(Constants.FirebaseDatabase.allRegistrationIds)
+        databaseRef.updateChildValues(values) { (err, _) in
+            
+            if let error = err {
+                fatalError("SignupVC/addRegistrationId: Error saving registrationId to database: \(error)")
+            }
+            
+            self.enableAndActivate(false)
         }
     }
     

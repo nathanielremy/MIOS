@@ -289,7 +289,16 @@ class SignUpVC: UIViewController, UIImagePickerControllerDelegate, UINavigationC
                 return
             }
             
-            guard let image = self.plusPhotoButton.imageView?.image, let imageData = UIImageJPEGRepresentation(image, 0.3) else {
+            var image = UIImage()
+            
+            if self.plusPhotoButton.imageView?.image == #imageLiteral(resourceName: "plus_photo") {
+                let noImage = #imageLiteral(resourceName: "no_profile_image")
+                image = noImage
+            } else {
+                image = #imageLiteral(resourceName: "plus_photo")
+            }
+            
+            guard let imageData = UIImageJPEGRepresentation(image, 0.3) else {
                 DispatchQueue.main.async {
                     self.enableAndActivate(false)
                 }
