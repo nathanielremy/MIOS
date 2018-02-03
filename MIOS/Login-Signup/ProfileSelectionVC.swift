@@ -92,7 +92,7 @@ class ProfileSelectionVC: UIViewController {
     fileprivate func setupView() {
         
         view.addSubview(textLabel)
-        textLabel.anchor(top: view.safeAreaLayoutGuide.topAnchor, left: view.leftAnchor, bottom: nil, right: view.rightAnchor, paddingTop: 175, paddingLeft: 5, paddingBottom: 0, paddingRight: -5, width: nil, height: nil)
+        textLabel.anchor(top: view.safeAreaLayoutGuide.topAnchor, left: view.leftAnchor, bottom: nil, right: view.rightAnchor, paddingTop: 100, paddingLeft: 5, paddingBottom: 0, paddingRight: -5, width: nil, height: nil)
         
         let stackView = UIStackView(arrangedSubviews: [doctorButton, patientButton])
         stackView.axis = .vertical
@@ -100,7 +100,7 @@ class ProfileSelectionVC: UIViewController {
         stackView.spacing = 20
         
         view.addSubview(stackView)
-        stackView.anchor(top: textLabel.bottomAnchor, left: view.leftAnchor, bottom: nil, right: view.rightAnchor, paddingTop: 75, paddingLeft: 20, paddingBottom: 0, paddingRight: -20, width: nil, height: 150)
+        stackView.anchor(top: textLabel.bottomAnchor, left: view.leftAnchor, bottom: nil, right: view.rightAnchor, paddingTop: 70, paddingLeft: 20, paddingBottom: 0, paddingRight: -20, width: nil, height: 150)
         
         doctorButton.layer.cornerRadius = 34
         patientButton.layer.cornerRadius = 34

@@ -35,11 +35,23 @@ class MainTabBarController: UITabBarController {
         let layout = UICollectionViewFlowLayout()
         
         // UserProfileVC
-        let userProfileNavController = templateNavController(unselectedImage: #imageLiteral(resourceName: "profile_unselected"), selectedImage: #imageLiteral(resourceName: "profile_selected"), rootViewController: UserProfileVC(collectionViewLayout: layout))
+        let userProfileNavController = templateNavController(unselectedImage: #imageLiteral(resourceName: "profile_unselected"), selectedImage: #imageLiteral(resourceName: "profile_unselected"), rootViewController: UserProfileVC(collectionViewLayout: layout))
+        
+        // ChatVC
+        let chatNavController = templateNavController(unselectedImage: #imageLiteral(resourceName: "comment"), selectedImage: #imageLiteral(resourceName: "comment"), rootViewController: ChatVC(collectionViewLayout: layout))
+        
+        // SearchVC
+        let searchNavController = templateNavController(unselectedImage: #imageLiteral(resourceName: "search_unselected"), selectedImage: #imageLiteral(resourceName: "search_unselected"), rootViewController: SearchVC(collectionViewLayout: layout))
+        
+        // ProfileViewsVC
+        let profileViewsNavController = templateNavController(unselectedImage: #imageLiteral(resourceName: "profileView"), selectedImage: #imageLiteral(resourceName: "profileView"), rootViewController: ProfileViewsVC(collectionViewLayout: layout))
         
         tabBar.tintColor = UIColor.mainGreen()
         
         self.viewControllers = [
+            profileViewsNavController,
+            searchNavController,
+            chatNavController,
             userProfileNavController
         ]
     }

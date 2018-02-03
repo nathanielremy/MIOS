@@ -77,10 +77,33 @@ class LoginVC: UIViewController {
         button.backgroundColor = UIColor.mainGreen().withAlphaComponent(0.3)
         button.layer.cornerRadius = 5
         button.isEnabled = false
-        //        button.addTarget(self, action: #selector(handleLogin), for: .touchUpInside)
+        button.addTarget(self, action: #selector(handleLogin), for: .touchUpInside)
         
         return button
     }()
+    
+    @objc func handleLogin() {
+        
+        guard let email = emailTextField.text, let password = passwordTextField.text else { return }
+        
+        self.enableViews(bool: false)
+        
+        Auth.auth().signIn(withEmail: email, password: password) { (user, err) in
+            
+            if let _ = err {
+                DispatchQueue.main.async {
+                    self.present(self.alert(title: "Unable to login", message: "Verify your credentials and try again."), animated: true, completion: nil)
+                    self.enableViews(bool: true)
+                    return
+                }
+            }
+            // Delete and refresh info in mainTabBar controllers
+            guard let mainTabBarController = UIApplication.shared.keyWindow?.rootViewController as? MainTabBarController else { fatalError() }
+            mainTabBarController.setupViewControllers()
+            
+            self.dismiss(animated: true, completion: nil)
+        }
+    }
     
     let switchToSignupButton: UIButton = {
         let button = UIButton(type: .system)
@@ -131,6 +154,22 @@ class LoginVC: UIViewController {
         
         emailTextField.delegate = self
         passwordTextField.delegate = self
+    }
+    
+    func alert(title: String, message: String) -> UIAlertController {
+        
+        let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        let okAction = UIAlertAction(title: "Okay", style: .cancel , handler: nil)
+        alertController.addAction(okAction)
+        
+        return alertController
+    }
+    
+    func enableViews(bool: Bool) {
+        emailTextField.isEnabled = bool
+        passwordTextField.isEnabled = bool
+        loginButton.isEnabled = bool
+        switchToSignupButton.isEnabled = bool
     }
 }
 

@@ -21,7 +21,7 @@ class Constants {
         static let orginisationRef = "orginisation"
         static let doctorRegistrationLimit = "doctorRegistrationLimit"
         static let signedUpDoctors = "signedUpDoctors"
-        static let allRegistrationIds = "allRegistrationIds"
+        static let allMIOSIds = "allMIOSIds"
         
         static let userId = "userId"
         static let fullName = "fullName"
@@ -37,6 +37,7 @@ class Constants {
     struct CollectionViewCellIds {
         static let userProfileHeaderCell = "userProfileHeaderCell"
         static let userTabCell = "userTabCell"
+        static let searchedUserCell = "searchedUserCell"
     }
     
     struct PatientTabCellTitles {

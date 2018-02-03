@@ -138,7 +138,7 @@ class MIOSIdVC: UIViewController {
         
         let values = [registrationId : [Constants.FirebaseDatabase.userId : userId, Constants.FirebaseDatabase.fullName : fullName]]
         
-        let databaseRef = Database.database().reference().child(Constants.FirebaseDatabase.allRegistrationIds)
+        let databaseRef = Database.database().reference().child(Constants.FirebaseDatabase.allMIOSIds)
         databaseRef.updateChildValues(values) { (err, _) in
             
             if let error = err {

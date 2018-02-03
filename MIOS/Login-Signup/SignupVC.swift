@@ -198,6 +198,20 @@ class SignUpVC: UIViewController, UIImagePickerControllerDelegate, UINavigationC
             print("This VC (SignupVC should not be on screen)"); navigationController?.popViewController(animated: true); return
         }
         
+        if isDoctor {
+            if registrationIdTextField.text?.first != "D" {
+                present(alert(title: "Invalid doctor id", message: "Doctor registration id's must start with the letter 'D'"), animated: true, completion: nil)
+                enableAndActivate(false)
+                return
+            }
+        } else {
+            if registrationIdTextField.text?.first != "P" {
+                present(alert(title: "Invalid patient id", message: "Patient registration id's must start with the letter 'P'"), animated: true, completion: nil)
+                enableAndActivate(false)
+                return
+            }
+        }
+        
         let databaseRef = Database.database().reference()
         
         if isDoctor {
@@ -395,7 +409,7 @@ class SignUpVC: UIViewController, UIImagePickerControllerDelegate, UINavigationC
         
         DispatchQueue.main.async {
             self.enableAndActivate(false)
-            print("No VC yet for doctor signup")
+            self.navigationController?.pushViewController(MIOSIdVC(), animated: true)
         }
      }
     
