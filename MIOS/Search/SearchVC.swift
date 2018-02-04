@@ -21,7 +21,7 @@ class SearchVC: UICollectionViewController, UICollectionViewDelegateFlowLayout, 
     lazy var searchBar: UISearchBar = {
         let sb = UISearchBar()
         sb.delegate = self
-        sb.placeholder = "Enter user registration id"
+        sb.placeholder = "Enter user MIOS id"
         UITextField.appearance(whenContainedInInstancesOf: [UISearchBar.self]).backgroundColor = UIColor.rgb(230, 230, 230)
         
         return sb
@@ -85,16 +85,22 @@ class SearchVC: UICollectionViewController, UICollectionViewDelegateFlowLayout, 
     
     fileprivate func fetchSearchedUser(withId id: String) {
         
-        guard let isDoctor = self.currentUser?.isDoctor else { return }
+        guard let currentUser = self.currentUser else { return }
         
-        if !isDoctor {
+        if currentUser.miosId == id {
+            enableAndActivate(bool: false)
+            present(alert(title: "This is your id", message: "Please enter another user's id"), animated: true, completion: nil)
+            return
+        }
+        
+        if !currentUser.isDoctor {
             if id.first != "D" {
                 enableAndActivate(bool: false)
                 present(alert(title: "Invalid registration id", message: "Doctor id's start with 'D'"), animated: true, completion: nil)
                 return
             }
         } else {
-            if id.first != "D" || id.first != "P" {
+            if !(id.first == "D" || id.first == "P") {
                 enableAndActivate(bool: false)
                 present(alert(title: "Invalid registration id", message: "Try again please"), animated: true, completion: nil)
                 return

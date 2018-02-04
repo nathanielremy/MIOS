@@ -15,6 +15,7 @@ class Constants {
     }
     
     struct FirebaseDatabase {
+        static let userProfileViewsRef = "userProfileViews"
         static let usersRef = "users"
         static let doctorRegistrationIdRef = "doctorRegistrationIds"
         static let patientRegistrationIdRef = "patientRegistrationIds"
@@ -23,6 +24,7 @@ class Constants {
         static let signedUpDoctors = "signedUpDoctors"
         static let allMIOSIds = "allMIOSIds"
         
+        static let date = "date"
         static let userId = "userId"
         static let fullName = "fullName"
         static let email = "email"
@@ -38,6 +40,7 @@ class Constants {
         static let userProfileHeaderCell = "userProfileHeaderCell"
         static let userTabCell = "userTabCell"
         static let searchedUserCell = "searchedUserCell"
+        static let profileViewCell = "profileViewCell"
     }
     
     struct PatientTabCellTitles {

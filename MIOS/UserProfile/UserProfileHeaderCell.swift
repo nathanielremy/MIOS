@@ -24,6 +24,8 @@ class UserProfileHeaderCell: UICollectionViewCell {
                 let attributedText = NSMutableAttributedString(string: user.fullName, attributes: [.font : UIFont.boldSystemFont(ofSize: 16), .foregroundColor : UIColor.black])
                 attributedText.append(NSAttributedString(string: "\n\n", attributes: [.font : UIFont.systemFont(ofSize: 8)]))
                 attributedText.append(NSAttributedString(string: "Doctor", attributes: [.font : UIFont.systemFont(ofSize: 14), .foregroundColor : UIColor.black]))
+                attributedText.append(NSAttributedString(string: "\n\n", attributes: [.font : UIFont.systemFont(ofSize: 8)]))
+                attributedText.append(NSAttributedString(string: user.miosId, attributes: [.font : UIFont.systemFont(ofSize: 14), .foregroundColor : UIColor.black]))
                 
                 informationLabel.attributedText = attributedText
             } else {
@@ -40,11 +42,11 @@ class UserProfileHeaderCell: UICollectionViewCell {
                 }
                 
                 attributedText.append(NSAttributedString(string: user.sex, attributes: [.font : UIFont.systemFont(ofSize: 14), .foregroundColor : UIColor.black]))
+                attributedText.append(NSAttributedString(string: "\n\n", attributes: [.font : UIFont.systemFont(ofSize: 8)]))
+                attributedText.append(NSAttributedString(string: user.miosId, attributes: [.font : UIFont.systemFont(ofSize: 14), .foregroundColor : UIColor.black]))
                 
                 informationLabel.attributedText = attributedText
             }
-            
-            
         }
     }
     
@@ -116,23 +118,4 @@ class UserProfileHeaderCell: UICollectionViewCell {
         
         
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
 }

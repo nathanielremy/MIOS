@@ -23,6 +23,7 @@ class UserProfileVC: UICollectionViewController, UICollectionViewDelegateFlowLay
         super.viewDidLoad()
         
         collectionView?.backgroundColor = .white
+        collectionView?.alwaysBounceVertical = true
         
         // Register the collectionView cells
         collectionView?.register(UserProfileHeaderCell.self, forSupplementaryViewOfKind: UICollectionElementKindSectionHeader, withReuseIdentifier: Constants.CollectionViewCellIds.userProfileHeaderCell)
@@ -31,12 +32,15 @@ class UserProfileVC: UICollectionViewController, UICollectionViewDelegateFlowLay
         print("Logged in user: ", Auth.auth().currentUser?.uid ?? "No UId")
         
         fetchUser()
-        setupSettingsButton()
     }
     
     fileprivate func setupSettingsButton() {
-        navigationItem.rightBarButtonItem = UIBarButtonItem(image: #imageLiteral(resourceName: "gear"), style: .plain, target: self, action: #selector(handleSettings))
-        navigationItem.rightBarButtonItem?.tintColor = UIColor.mainGreen()
+        
+        guard let _ = self.userId else {
+            navigationItem.rightBarButtonItem = UIBarButtonItem(image: #imageLiteral(resourceName: "gear"), style: .plain, target: self, action: #selector(handleSettings))
+            navigationItem.rightBarButtonItem?.tintColor = UIColor.mainGreen()
+            return
+        }
     }
     
     @objc func handleSettings() {
@@ -67,6 +71,37 @@ class UserProfileVC: UICollectionViewController, UICollectionViewDelegateFlowLay
                     self.collectionView?.reloadData()
                     self.navigationItem.title = user.fullName
                 }
+                self.setupSettingsButton()
+                self.addProfileView(forUser: user)
+            }
+        }
+    }
+    
+    fileprivate func addProfileView(forUser user: User) {
+        
+        guard let currentUserId = Auth.auth().currentUser?.uid else { return }
+        if user.userId == currentUserId {
+            return
+        }
+        
+        Database.fetchUserFromUserID(userID: currentUserId) { (fetchedUser) in
+            if let currentUser = fetchedUser {
+                
+                print("CurrentUSer: ", currentUser)
+                
+                let values = [Constants.FirebaseDatabase.userId : currentUserId,
+                              Constants.FirebaseDatabase.date : Date().timeIntervalSince1970
+                    ] as [String : Any]
+                
+                let databaseRef = Database.database().reference().child(Constants.FirebaseDatabase.userProfileViewsRef).child(user.userId).childByAutoId()
+                databaseRef.updateChildValues(values, withCompletionBlock: { (err, _) in
+                    
+                    if let error = err {
+                        print("UserProfileVC/addProfileView(): Error uploading to database: ", error)
+                        return
+                    }
+                    
+                })
             }
         }
     }
@@ -88,7 +123,7 @@ class UserProfileVC: UICollectionViewController, UICollectionViewDelegateFlowLay
     // Need to provide a size or the section header will not render out
     // Define the size of the section header for the collectionView
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        return CGSize(width: view.frame.width, height: 225)
+        return CGSize(width: view.frame.width, height: 255)
     }
     
     //MARK: TabCell Delegate methods
@@ -121,16 +156,4 @@ class UserProfileVC: UICollectionViewController, UICollectionViewDelegateFlowLay
         
         return cell
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
 }

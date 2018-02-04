@@ -37,9 +37,6 @@ class MainTabBarController: UITabBarController {
         // UserProfileVC
         let userProfileNavController = templateNavController(unselectedImage: #imageLiteral(resourceName: "profile_unselected"), selectedImage: #imageLiteral(resourceName: "profile_unselected"), rootViewController: UserProfileVC(collectionViewLayout: layout))
         
-        // ChatVC
-        let chatNavController = templateNavController(unselectedImage: #imageLiteral(resourceName: "comment"), selectedImage: #imageLiteral(resourceName: "comment"), rootViewController: ChatVC(collectionViewLayout: layout))
-        
         // SearchVC
         let searchNavController = templateNavController(unselectedImage: #imageLiteral(resourceName: "search_unselected"), selectedImage: #imageLiteral(resourceName: "search_unselected"), rootViewController: SearchVC(collectionViewLayout: layout))
         
@@ -51,7 +48,6 @@ class MainTabBarController: UITabBarController {
         self.viewControllers = [
             profileViewsNavController,
             searchNavController,
-            chatNavController,
             userProfileNavController
         ]
     }
@@ -63,23 +59,5 @@ class MainTabBarController: UITabBarController {
         navVC.tabBarItem.selectedImage = selectedImage
         
         return navVC
-    }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+    }    
 }
