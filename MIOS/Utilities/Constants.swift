@@ -54,4 +54,10 @@ class Constants {
         static let visitSummaries = "Visit Summaries"
         static let affiliatedDoctors = "Affiliated Doctors"
     }
+    
+    struct DoctorTabCellTitles {
+        static let importantPatients = "Important Patients"
+        static let allPatients = "All Patients"
+        static let notes = "Notes"
+    }
 }

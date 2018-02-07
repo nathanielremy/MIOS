@@ -48,6 +48,9 @@ class ProfileViewsVC: UICollectionViewController, UICollectionViewDelegateFlowLa
                     if let user = fetchedUser {
                         let profView = ProfileView(user: user, dictionary: dictionary)
                         self.profileViews.append(profView)
+                        self.profileViews.sort(by: { (view1, view2) -> Bool in
+                            return view1.date.compare(view2.date) == .orderedDescending
+                        })
                         self.collectionView?.reloadData()
                     }
                 })
@@ -61,6 +64,15 @@ class ProfileViewsVC: UICollectionViewController, UICollectionViewDelegateFlowLa
         
         //FIXME: HANDLE ZERO VIEWS
         
+    }
+    
+    func alert(title: String, message: String) -> UIAlertController {
+        
+        let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        let okAction = UIAlertAction(title: "Okay", style: .cancel , handler: nil)
+        alertController.addAction(okAction)
+        
+        return alertController
     }
     
     //MARK: CollectionViewDelegate methods
@@ -89,4 +101,14 @@ class ProfileViewsVC: UICollectionViewController, UICollectionViewDelegateFlowLa
         return CGSize(width: width, height: 86)
     }
     
+    override func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let selectedUser = self.profileViews[indexPath.item]
+        
+        let layout = UICollectionViewFlowLayout()
+        
+        let userProfileVC = UserProfileVC(collectionViewLayout: layout)
+        userProfileVC.userId = selectedUser.user.userId
+        
+        navigationController?.pushViewController(userProfileVC, animated: true)
+    }
 }

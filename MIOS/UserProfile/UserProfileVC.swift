@@ -16,6 +16,8 @@ class UserProfileVC: UICollectionViewController, UICollectionViewDelegateFlowLay
     var userId: String?
     var user: User?
     
+    let doctorTabCellTitles = [Constants.DoctorTabCellTitles.importantPatients, Constants.DoctorTabCellTitles.allPatients, Constants.DoctorTabCellTitles.notes]
+    
     let patientTabCellTitles = [Constants.PatientTabCellTitles.generalInfo, Constants.PatientTabCellTitles.patientNotes, Constants.PatientTabCellTitles.scanResults, Constants.PatientTabCellTitles.prescriptions, Constants.PatientTabCellTitles.recentInjuries, Constants.PatientTabCellTitles.conditions, Constants.PatientTabCellTitles.testResults, Constants.PatientTabCellTitles.visitSummaries, Constants.PatientTabCellTitles.affiliatedDoctors]
     
     
@@ -152,7 +154,13 @@ class UserProfileVC: UICollectionViewController, UICollectionViewDelegateFlowLay
         
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: Constants.CollectionViewCellIds.userTabCell, for: indexPath) as! UserTabCell
         
-        cell.titleLabel.text = self.patientTabCellTitles[indexPath.item]
+        if let user = self.user {
+            if user.isDoctor {
+                cell.titleLabel.text = self.doctorTabCellTitles[indexPath.item]
+            } else {
+                cell.titleLabel.text = self.patientTabCellTitles[indexPath.item]
+            }
+        }
         
         return cell
     }
