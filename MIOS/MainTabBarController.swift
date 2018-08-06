@@ -31,17 +31,14 @@ class MainTabBarController: UITabBarController {
     }
     
     func setupViewControllers() {
-        
-        let layout = UICollectionViewFlowLayout()
-        
         // UserProfileVC
-        let userProfileNavController = templateNavController(unselectedImage: #imageLiteral(resourceName: "profile_unselected"), selectedImage: #imageLiteral(resourceName: "profile_unselected"), rootViewController: UserProfileVC(collectionViewLayout: layout))
+        let userProfileNavController = templateNavController(unselectedImage: #imageLiteral(resourceName: "profile_unselected"), selectedImage: #imageLiteral(resourceName: "profile_unselected"), rootViewController: UserProfileVC(collectionViewLayout: UICollectionViewFlowLayout()))
         
         // SearchVC
-        let searchNavController = templateNavController(unselectedImage: #imageLiteral(resourceName: "search_unselected"), selectedImage: #imageLiteral(resourceName: "search_unselected"), rootViewController: SearchVC(collectionViewLayout: layout))
+        let searchNavController = templateNavController(unselectedImage: #imageLiteral(resourceName: "search_unselected"), selectedImage: #imageLiteral(resourceName: "search_unselected"), rootViewController: SearchVC(collectionViewLayout: UICollectionViewFlowLayout()))
         
         // ProfileViewsVC
-        let profileViewsNavController = templateNavController(unselectedImage: #imageLiteral(resourceName: "profileView"), selectedImage: #imageLiteral(resourceName: "profileView"), rootViewController: ProfileViewsVC(collectionViewLayout: layout))
+        let profileViewsNavController = templateNavController(unselectedImage: #imageLiteral(resourceName: "profileView"), selectedImage: #imageLiteral(resourceName: "profileView"), rootViewController: ProfileViewsVC(collectionViewLayout: UICollectionViewFlowLayout()))
         
         tabBar.tintColor = UIColor.mainGreen()
         
